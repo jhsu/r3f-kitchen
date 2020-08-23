@@ -1,0 +1,24 @@
+{
+  "name": "r3f-layers",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "dependencies": {
+    "@pika/react": "^16.13.1",
+    "@pika/react-dom": "^16.13.1",
+    "@tensorflow-models/body-pix": "^2.0.5",
+    "drei": "^1.2.0",
+    "react-spring": "^8.0.27",
+    "react-three-fiber": "^4.2.20",
+    "three": "^0.119.1"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.35",
+    "@types/react-dom": "^16.9.8",
+    "typescript": "^4.0.2",
+    "vite": "^1.0.0-rc.1",
+    "vite-plugin-react": "^3.0.0"
+  }
+}
