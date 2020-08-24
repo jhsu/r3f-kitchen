@@ -1,13 +1,4 @@
-import React, {
-  useRef,
-  useState,
-  useCallback,
-  useEffect,
-  RefObject,
-  useMemo,
-  ReactChildren,
-  ReactNode,
-} from "react";
+import React, { useRef, useState, useEffect, ReactNode } from "react";
 import { Canvas, useFrame } from "react-three-fiber";
 import { OrbitControls } from "drei";
 import { a, useSprings } from "react-spring/three";
@@ -17,7 +8,6 @@ import "./App.css";
 import {
   loadAndUseBodypix,
   segmentPerson,
-  drawSegmentation,
   getSegmentationImage,
 } from "./bodypix/bodypix";
 import { BodyPix } from "@tensorflow-models/body-pix";
