@@ -1,7 +1,7 @@
-import React, { useRef, useState, useEffect, ReactNode } from "react";
-import { Canvas, useFrame } from "react-three-fiber";
+import React, { useRef, useState, useEffect, Suspense, ReactNode } from "react";
+import { Canvas, useFrame, ReactThreeFiber } from "react-three-fiber";
 import { OrbitControls } from "drei";
-import { a, useSprings } from "react-spring/three";
+import { a, useSpring, useSprings } from "react-spring/three";
 import { Billboard, Html, Sky } from "drei";
 
 import "./App.css";
@@ -11,7 +11,8 @@ import {
   getSegmentationImage,
 } from "./bodypix/bodypix";
 import { BodyPix } from "@tensorflow-models/body-pix";
-import { DataTexture } from "three";
+import { DataTexture, Object3D } from "three";
+import Hedges from "./Hedges";
 
 const colors = ["red", "green"];
 
@@ -53,8 +54,9 @@ const Cycle = () => {
 interface WebcamProps {
   children?: ReactNode;
   video?: HTMLVideoElement | null;
+  position?: ReactThreeFiber.Vector3;
 }
-const Webcam = ({ children, video }: WebcamProps) => {
+const Webcam = ({ children, position, video }: WebcamProps) => {
   if (!video) {
     return null;
   }
@@ -62,7 +64,7 @@ const Webcam = ({ children, video }: WebcamProps) => {
   //   return new THREE.VideoTexture(video);
   // }, [video]);
   return (
-    <Billboard follow args={[10, 5]} position={[-4, -2, 0]}>
+    <Billboard follow args={[10, 5]} position={position}>
       <meshBasicMaterial attach="material" transparent>
         <videoTexture attach="map" args={[video]} />
         {children}
@@ -88,7 +90,10 @@ async function setupWebcam(video: HTMLVideoElement | null | undefined) {
   }
 }
 
-const VideoBillboard = () => {
+interface VideoBillboardProps {
+  position?: ReactThreeFiber.Vector3;
+}
+const VideoBillboard = ({ position }: VideoBillboardProps) => {
   const [video, setVideo] = useState<HTMLVideoElement | null>();
   const [bodyNet, setBodyNet] = useState<BodyPix>();
   const [startSegment, setStartSegment] = useState(false);
@@ -126,7 +131,7 @@ const VideoBillboard = () => {
 
   return (
     <>
-      <Webcam video={video}>
+      <Webcam video={video} position={position}>
         <dataTexture attach="alphaMap" ref={dataTexture} flipY />
       </Webcam>
       <Html>
@@ -147,6 +152,28 @@ const VideoBillboard = () => {
   );
 };
 
+const HedgesHide = ({ children, position }) => {
+  const [hide, setHide] = useState(false);
+  const spring = useSpring({
+    z: hide ? 12 : position[2],
+    config: {
+      friction: 200,
+    },
+  });
+  return (
+    <a.object3D
+      position={spring.z.interpolate((z: number) => [
+        position[0],
+        position[1],
+        z,
+      ])}
+      onClick={() => void setHide((h) => !h)}
+    >
+      {children}
+    </a.object3D>
+  );
+};
+
 function App() {
   return (
     <Canvas shadowMap colorManagement camera={{ position: [0, 0, -4] }}>
@@ -154,9 +181,13 @@ function App() {
       <OrbitControls />
       <ambientLight position={[0, 5, 0]} intensity={0.5} />
       <pointLight position={[1, 1, 0]} />
-      <Cycle />
+      <Suspense fallback={null}>
+        <Hedges position={[0, 0, 10]} rotation={[0, -0.25, 0]} />
+      </Suspense>
 
-      <VideoBillboard />
+      <HedgesHide position={[0, 0, 1]}>
+        <VideoBillboard />
+      </HedgesHide>
     </Canvas>
   );
 }
