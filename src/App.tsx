@@ -4,15 +4,17 @@ import { OrbitControls } from "drei";
 import { a, useSpring, useSprings } from "react-spring/three";
 import { Billboard, Html, Sky } from "drei";
 
+import { BodyPix } from "@tensorflow-models/body-pix";
+import { DataTexture, Object3D } from "three";
+
 import "./App.css";
 import {
   loadAndUseBodypix,
   segmentPerson,
   getSegmentationImage,
 } from "./bodypix/bodypix";
-import { BodyPix } from "@tensorflow-models/body-pix";
-import { DataTexture, Object3D } from "three";
 import Hedges from "./Hedges";
+import Header from "./Header";
 
 const colors = ["red", "green"];
 
@@ -160,17 +162,37 @@ const HedgesHide = ({ children, position }) => {
       friction: 200,
     },
   });
+  const hidden = useSpring({
+    z: hide ? position[2] : 12,
+    config: {
+      friction: 200,
+    },
+  });
+
   return (
-    <a.object3D
-      position={spring.z.interpolate((z: number) => [
-        position[0],
-        position[1],
-        z,
-      ])}
-      onClick={() => void setHide((h) => !h)}
-    >
-      {children}
-    </a.object3D>
+    <>
+      <a.object3D
+        position={spring.z.interpolate((z: number) => [
+          position[0],
+          position[1],
+          z,
+        ])}
+        onClick={() => void setHide((h) => !h)}
+      >
+        {children}
+      </a.object3D>
+      <a.object3D
+        position={hidden.z.interpolate((z: number) => [
+          position[0],
+          position[1],
+          z,
+        ])}
+      >
+        <Suspense fallback={null}>
+          <Header position={[10, 3, 8]} />
+        </Suspense>
+      </a.object3D>
+    </>
   );
 };
 
